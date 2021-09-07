@@ -9,6 +9,7 @@ const serverlessConfiguration: AWS = {
       includeModules: true,
     },
   },
+  useDotenv: true,
   plugins: ['serverless-webpack'],
   provider: {
     name: 'aws',
@@ -21,6 +22,11 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      PG_HOST: '${file(./env.json):PG_HOST}',
+      PG_PORT: '${file(./env.json):PG_PORT}',
+      PG_DATABASE: '${file(./env.json):PG_DATABASE}',
+      PG_USERNAME: '${file(./env.json):PG_USERNAME}',
+      PG_PASSWORD: '${file(./env.json):PG_PASSWORD}'
     },
     lambdaHashingVersion: '20201221',
   },
