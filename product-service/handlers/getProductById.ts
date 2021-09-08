@@ -1,35 +1,22 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import "source-map-support/register";
-import { headers } from "../constants/constants";
-import { invoke } from "../sql/db.helper";
+import { HTTP_STATUS_CODE } from "../constants/constants";
+import * as productService from "../services/product.service";
+import { prepareResponse } from "../helpers/prepareResponse.helper";
 
 export const getProductById = async (event: APIGatewayProxyEvent) => {
-
     try {
         const { productId } = event.pathParameters;
 
-        const productData = await invoke(`select p.id, p.description, p.price, p.title, s.count from products p left join stocks s on p.id = s.product_id where s.product_id = '${productId}' and p.id = '${productId}'`);
-        const product = productData.rows[0];
+        const product = await productService.getProductById(productId);
 
         if (!product) {
-            return {
-                headers,
-                statusCode: 404,
-                body: JSON.stringify(`Product is not found: ${productId}`)
-            };
+            return prepareResponse(HTTP_STATUS_CODE.NOT_FOUND, { message: `Product is not found: ${productId }`});
         }
 
-        return {
-                headers,
-                statusCode: 200,
-                body: JSON.stringify(product)
-            }
+        return prepareResponse(HTTP_STATUS_CODE.OK, product);
 
-    } catch (error) {
-        return {
-            headers,
-            statusCode: 500,
-            body: JSON.stringify({ message: `SERVER_ERROR: [${error}]` }, null, 2)
-        };
+    } catch (e) {
+        return prepareResponse(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, {message: e.message});
     }
 }

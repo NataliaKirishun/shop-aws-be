@@ -1,21 +1,14 @@
 import "source-map-support/register";
-import { headers } from "../constants/constants";
-import { invoke } from "../sql/db.helper";
+import { HTTP_STATUS_CODE } from "../constants/constants";
+import * as productService from "../services/product.service";
+import { prepareResponse } from "../helpers/prepareResponse.helper";
 
 export const getProductList = async () => {
     try {
-        const products = await invoke('select p.id, p.description, p.price, p.title, s.count from products p left join stocks s on p.id = s.product_id');
+        const products = await productService.getProductList();
 
-        return {
-            headers,
-            statusCode: 200,
-            body: JSON.stringify(products.rows)
-        };
-    } catch (error) {
-        return {
-            headers,
-            statusCode: 500,
-            body: JSON.stringify({ message: error.message })
-        };
+        return prepareResponse(HTTP_STATUS_CODE.OK, products);
+    } catch (e) {
+        return prepareResponse(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, {message: e.message});
     }
 }

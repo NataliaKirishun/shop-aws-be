@@ -1,4 +1,5 @@
 import type { AWS } from '@serverless/typescript';
+import {ProductScheme} from "./models/product.model";
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -22,11 +23,11 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      PG_HOST: '${file(./env.json):PG_HOST}',
-      PG_PORT: '${file(./env.json):PG_PORT}',
-      PG_DATABASE: '${file(./env.json):PG_DATABASE}',
-      PG_USERNAME: '${file(./env.json):PG_USERNAME}',
-      PG_PASSWORD: '${file(./env.json):PG_PASSWORD}'
+      PG_HOST: '${env:PG_HOST}',
+      PG_PORT: '${env:PG_PORT}',
+      PG_DATABASE: '${env:PG_DATABASE}',
+      PG_USERNAME: '${env:PG_USERNAME}',
+      PG_PASSWORD: '${env:PG_PASSWORD}'
     },
     lambdaHashingVersion: '20201221',
   },
@@ -56,7 +57,29 @@ const serverlessConfiguration: AWS = {
         }
       ]
 
-    }
+    },
+    addProduct: {
+      handler: 'handler.addProduct',
+
+      events: [
+        {
+          http: {
+            method: 'post',
+            path: 'products',
+            cors: true,
+            request: {
+              schemas: {
+                'application/json': {
+                  schema: ProductScheme,
+                  name: 'ProductModel',
+                  description: 'body validation'
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
   },
 };
 

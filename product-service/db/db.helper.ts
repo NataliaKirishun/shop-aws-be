@@ -16,16 +16,12 @@ const dbOptions = {
 
 export const invoke = async (query, data = []) => {
     const client = new Client(dbOptions);
-    console.log('11111');
     await client.connect();
 
     try {
-        console.error('222222');
         return await client.query(query, data);
-
-    } catch (error) {
-        console.error('33333');
-        console.error('DB error', error.message);
+    } catch (e) {
+        console.error('DB error', e.message);
     } finally {
         client.end();
     }
