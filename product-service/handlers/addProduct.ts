@@ -7,14 +7,10 @@ import { ProductScheme } from "../models/product.model";
 import { ValidatedEventAPIGatewayProxyEvent } from "../helpers/validateRequest.helper";
 
 export const addProduct: ValidatedEventAPIGatewayProxyEvent<typeof ProductScheme> = async (event: APIGatewayProxyEvent) => {
+    console.log('[addProduct function]: ', event);
 
     try {
         const data = JSON.parse(event.body);
-        /*const { title, price, count } = data;
-
-        if (!title || price < 0 || count < 0) {
-            return prepareResponse(HTTP_STATUS_CODE.BAD_REQUEST, { message: 'Product data is not valid!'});
-        }*/
 
         const product = await productService.addProduct(data);
 

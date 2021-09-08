@@ -5,6 +5,8 @@ import * as productService from "../services/product.service";
 import { prepareResponse } from "../helpers/prepareResponse.helper";
 
 export const getProductById = async (event: APIGatewayProxyEvent) => {
+    console.log('[getProductById function]: ', event);
+
     try {
         const { productId } = event.pathParameters;
 

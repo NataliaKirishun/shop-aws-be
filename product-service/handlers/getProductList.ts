@@ -2,8 +2,11 @@ import "source-map-support/register";
 import { HTTP_STATUS_CODE } from "../constants/constants";
 import * as productService from "../services/product.service";
 import { prepareResponse } from "../helpers/prepareResponse.helper";
+import { APIGatewayProxyEvent } from "aws-lambda";
 
-export const getProductList = async () => {
+export const getProductList = async (event: APIGatewayProxyEvent) => {
+    console.log('[getProductList function]: ', event);
+
     try {
         const products = await productService.getProductList();
 
