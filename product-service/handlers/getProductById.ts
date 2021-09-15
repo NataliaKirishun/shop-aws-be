@@ -1,25 +1,24 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import "source-map-support/register";
-import { mockProducts } from "../assets/products";
-import { headers } from "../constants/constants";
-import { Product } from "../models/product.model";
+import { HTTP_STATUS_CODE } from "../constants/constants";
+import * as productService from "../services/product.service";
+import { prepareResponse } from "../helpers/prepareResponse.helper";
 
 export const getProductById = async (event: APIGatewayProxyEvent) => {
-    const { productId } = event.pathParameters;
+    console.log('[getProductById function]: ', event);
 
-    const product = mockProducts.find(({id}: Product) => productId === id);
+    try {
+        const { productId } = event.pathParameters;
 
-    if (!product) {
-        return {
-            headers,
-            statusCode: 404,
-            body: JSON.stringify('Product is not found')
-        };
+        const product = await productService.getProductById(productId);
+
+        if (!product) {
+            return prepareResponse(HTTP_STATUS_CODE.NOT_FOUND, { message: `Product is not found: ${productId }`});
+        }
+
+        return prepareResponse(HTTP_STATUS_CODE.OK, product);
+
+    } catch (e) {
+        return prepareResponse(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR, {message: e.message});
     }
-
-    return {
-        headers,
-        statusCode: 200,
-        body: JSON.stringify(product)
-    };
 }
