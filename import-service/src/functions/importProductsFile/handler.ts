@@ -6,10 +6,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { S3 } from 'aws-sdk';
 import { HTTP_STATUS_CODE } from "../../../constants/constants";
 
-const REGION = 'eu-west-1';
-const BUCKET = 'import-products';
-const PREFIX = 'uploaded';
-
+const { REGION, BUCKET, PREFIX } = process.env;
 
 const importProductsFile: APIGatewayProxyHandler = async (event) => {
 
