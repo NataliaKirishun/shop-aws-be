@@ -29,13 +29,25 @@ const importFileParser: S3Handler = async (event: S3Event, _context: Context) =>
                 s3stream
                     .pipe(csvParser())
                     .on('data', (data) => {
-                        console.log('PARSED DATA:', data);
+                        console.log('[PARSED DATA]:', data);
                     })
                     .on('error', (err) => {
                         reject(err);
                     })
-                    .on('end', () => {
-                        console.log('end');
+                    .on('end', async () => {
+                        const newFileName = filename.slice(filename.indexOf('/') + 1);
+                        await s3
+                            .copyObject({
+                                Bucket: bucket.name,
+                                CopySource: `${bucket.name}/${filename}`,
+                                Key: `parsed/${newFileName}`
+                            })
+                            .promise();
+
+                        await s3
+                            .deleteObject(params)
+                            .promise();
+
                         resolve();
                     })
             });

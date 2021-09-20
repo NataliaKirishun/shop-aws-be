@@ -12,6 +12,7 @@ const serverlessConfiguration: AWS = {
       includeModules: true,
     },
   },
+  useDotenv: true,
   plugins: ['serverless-webpack'],
   provider: {
     name: 'aws',
@@ -24,6 +25,9 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      REGION: '${env:REGION}',
+      BUCKET: '${env:BUCKET}',
+      PREFIX: '${env:PREFIX}',
     },
     iamRoleStatements: [
       {
