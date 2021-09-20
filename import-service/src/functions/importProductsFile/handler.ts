@@ -1,14 +1,13 @@
-import 'source-map-support/register';
-
-import { formatJSONResponse } from '@libs/apiGateway';
-import { middyfy } from '@libs/lambda';
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
+import "source-map-support/register";
+import { formatJSONResponse } from "@libs/apiGateway";
+import { middyfy } from "@libs/lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { S3 } from "aws-sdk";
 import { HTTP_STATUS_CODE } from "../../../constants/constants";
 
 const { REGION, BUCKET, PREFIX } = process.env;
 
-const importProductsFile: APIGatewayProxyHandler = async (event) => {
+export const importProductsFile  = async (event: APIGatewayProxyEvent) => {
 
     try {
         const name = event.queryStringParameters?.name;
