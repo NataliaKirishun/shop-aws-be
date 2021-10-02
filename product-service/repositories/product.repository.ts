@@ -9,6 +9,7 @@ export const getProductById = async (id) => {
 }
 
 export const addProduct = async ({ title, price, description, count }) => {
+    console.log(title, price, description, count, 'title, price, description, count');
 
     const { rows: [{ id }] } = await invoke('INSERT INTO products (title, price, description) VALUES ($1, $2, $3) RETURNING id',
         [title, price, description]
@@ -18,6 +19,8 @@ export const addProduct = async ({ title, price, description, count }) => {
     );
 
     const product = await getProductById(id);
+
+    console.log(product, 'product');
 
     return product.rows[0];
 }
