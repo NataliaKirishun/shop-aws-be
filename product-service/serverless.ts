@@ -30,7 +30,26 @@ const serverlessConfiguration: AWS = {
       PG_PASSWORD: '${env:PG_PASSWORD}',
       REGION: '${env:REGION}',
       QUEUE_NAME: '${env:QUEUE_NAME}',
+      SNS_ARN: {
+        Ref: 'SNSTopic'
+      }
     },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: 'sqs:*',
+        Resource: {
+          'Fn::GetAtt': ['SQSQueue','Arn']
+        }
+      },
+      {
+        Effect: 'Allow',
+        Action: 'sns:*',
+        Resource: {
+          Ref: 'SNSTopic'
+        }
+      }
+    ],
     lambdaHashingVersion: '20201221',
   },
   // import the function via paths
@@ -40,6 +59,22 @@ const serverlessConfiguration: AWS = {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: '${env:QUEUE_NAME}'
+        }
+      },
+      SNSTopic: {
+        Type: 'AWS::SNS::Topic',
+          Properties: {
+            TopicName: 'createProductTopic'
+          }
+      },
+      SNSSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: 'namolosh@gmail.com',
+          Protocol: 'email',
+          TopicArn: {
+            Ref: 'SNSTopic'
+          }
         }
       }
     }
