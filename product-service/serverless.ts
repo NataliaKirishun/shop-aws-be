@@ -27,11 +27,23 @@ const serverlessConfiguration: AWS = {
       PG_PORT: '${env:PG_PORT}',
       PG_DATABASE: '${env:PG_DATABASE}',
       PG_USERNAME: '${env:PG_USERNAME}',
-      PG_PASSWORD: '${env:PG_PASSWORD}'
+      PG_PASSWORD: '${env:PG_PASSWORD}',
+      REGION: '${env:REGION}',
+      QUEUE_NAME: '${env:QUEUE_NAME}',
     },
     lambdaHashingVersion: '20201221',
   },
   // import the function via paths
+  resources: {
+    Resources: {
+      SQSQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: '${env:QUEUE_NAME}'
+        }
+      }
+    }
+  },
   functions: {
     getProductList: {
       handler: 'handler.getProductList',
@@ -60,7 +72,6 @@ const serverlessConfiguration: AWS = {
     },
     addProduct: {
       handler: 'handler.addProduct',
-
       events: [
         {
           http: {
@@ -80,6 +91,19 @@ const serverlessConfiguration: AWS = {
         }
       ]
     },
+    catalogBatchProcess: {
+      handler: 'handler.catalogBatchProcess',
+      events: [
+        {
+          sqs: {
+            batchSize: 5,
+            arn: {
+              'Fn::GetAtt': ['SQSQueue', 'Arn']
+            }
+          }
+        }
+      ]
+    }
   },
 };
 

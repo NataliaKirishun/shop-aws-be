@@ -28,6 +28,8 @@ const serverlessConfiguration: AWS = {
       REGION: '${env:REGION}',
       BUCKET: '${env:BUCKET}',
       PREFIX: '${env:PREFIX}',
+      QUEUE_NAME: '${env:QUEUE_NAME}',
+      SQS_URL: '${env:SQS_URL}'
     },
     iamRoleStatements: [
       {
@@ -39,6 +41,11 @@ const serverlessConfiguration: AWS = {
         Effect: 'Allow',
         Action: 's3:*',
         Resource: 'arn:aws:s3:::import-products/*'
+      },
+      {
+        Effect: 'Allow',
+        Action: 'sqs:*',
+        Resource: 'arn:aws:sqs:eu-west-1:474755438338:catalogItemsQueue'
       }
     ],
     lambdaHashingVersion: '20201221',

@@ -2,16 +2,17 @@ import 'source-map-support/register';
 import { formatJSONResponse } from '@libs/apiGateway';
 import { middyfy } from '@libs/lambda';
 import { Context, S3Handler, S3Event } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
+import * as AWS from 'aws-sdk';
 import { HTTP_STATUS_CODE } from '../../../constants/constants';
 import * as csvParser from 'csv-parser';
 
-const { REGION } = process.env;
+const { REGION, SQS_URL } = process.env;
 
 const importFileParser: S3Handler = async (event: S3Event, _context: Context) => {
     try {
-
-        const s3 = new S3({ region: REGION });
+        AWS.config.update({ region: REGION });
+        const s3 = new AWS.S3();
+        const sqs = new AWS.SQS();
 
         for (const record of event.Records) {
 
@@ -29,7 +30,12 @@ const importFileParser: S3Handler = async (event: S3Event, _context: Context) =>
                 s3stream
                     .pipe(csvParser())
                     .on('data', (data) => {
-                        console.log('[PARSED DATA]:', data);
+                        sqs.sendMessage({
+                            QueueUrl: SQS_URL,
+                            MessageBody: JSON.stringify(data)
+                        }, (error) => {
+                            console.log(error, 'error');
+                        })
                     })
                     .on('error', (err) => {
                         reject(err);
