@@ -15,10 +15,16 @@ export const catalogBatchProcess: SQSHandler = async (event: SQSEvent): Promise<
 
             sns.publish({
                 Subject: 'Adding a new product',
-                Message: `Item was added: ${product}`,
+                Message: JSON.stringify(product),
+                MessageAttributes: {
+                    count: {
+                        DataType: "String",
+                        StringValue: String(product.count)
+                    }
+                },
                 TopicArn: SNS_ARN
-            }, () => {
-                console.log('Send email');
+            }, (err, data) => {
+                console.log('Send email error: ', err);
             });
         }
     } catch (err) {
