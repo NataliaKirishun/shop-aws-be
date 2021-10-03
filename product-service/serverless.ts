@@ -30,6 +30,7 @@ const serverlessConfiguration: AWS = {
       PG_PASSWORD: '${env:PG_PASSWORD}',
       REGION: '${env:REGION}',
       QUEUE_NAME: '${env:QUEUE_NAME}',
+      TOPIC_NAME: '${env:TOPIC_NAME}',
       SNS_ARN: {
         Ref: 'SNSTopic'
       }
@@ -64,7 +65,7 @@ const serverlessConfiguration: AWS = {
       SNSTopic: {
         Type: 'AWS::SNS::Topic',
           Properties: {
-            TopicName: 'createProductTopic'
+            TopicName: '${env:TOPIC_NAME}'
           }
       },
       SNSSubscription: {
@@ -88,6 +89,21 @@ const serverlessConfiguration: AWS = {
           FilterPolicy: {
             count: [{ numeric: [">=", 10] }]
           }
+        }
+      }
+    },
+    Outputs: {
+      QueueURL: {
+        Value: {
+          Ref: 'SQSQueue',
+        }
+      },
+      QueueARN: {
+        Value: {
+          'Fn::GetAtt': [
+            'SQSQueue',
+            'Arn'
+          ]
         }
       }
     }

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.999.0",
+    "aws-sdk-mock": "^5.4.0",
     "pg": "^8.7.1",
     "source-map-support": "^0.5.19"
   },

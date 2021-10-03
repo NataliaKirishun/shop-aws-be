@@ -1,6 +1,6 @@
 import { SQSEvent, SQSHandler } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
-import * as productService from "../services/product.service";
+import * as productService from '../services/product.service';
 
 const { REGION, SNS_ARN } = process.env;
 
@@ -11,7 +11,6 @@ export const catalogBatchProcess: SQSHandler = async (event: SQSEvent): Promise<
 
         for (const record of event.Records) {
             const product = await productService.addProduct(JSON.parse(record.body));
-            console.log(product, 'product');
 
             sns.publish({
                 Subject: 'Adding a new product',
@@ -23,7 +22,7 @@ export const catalogBatchProcess: SQSHandler = async (event: SQSEvent): Promise<
                     }
                 },
                 TopicArn: SNS_ARN
-            }, (err, data) => {
+            }, (err) => {
                 console.log('Send email error: ', err);
             });
         }
