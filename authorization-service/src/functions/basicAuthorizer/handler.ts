@@ -57,6 +57,7 @@ function generatePolicy(
             ],
         },
     };
+}
 
 
 export const main = middyfy(basicAuthorizer);

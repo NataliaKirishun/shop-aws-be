@@ -27,7 +27,20 @@ const serverlessConfiguration: AWS = {
     lambdaHashingVersion: '20201221',
   },
   // import the function via paths
-  functions: { basicAuthorizer }
+  functions: { basicAuthorizer },
+  resources: {
+    Resources: {},
+    Outputs: {
+      BasicAuthArn: {
+        Value: {
+          'Fn::GetAtt': ['BasicAuthorizerLambdaFunction', 'Arn'],
+        },
+        Export: {
+          Name: 'BasicAuthArn',
+        },
+      }
+    }
+  }
 };
 
 module.exports = serverlessConfiguration;

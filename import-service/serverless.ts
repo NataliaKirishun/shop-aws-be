@@ -18,7 +18,10 @@ const serverlessConfiguration: AWS = {
     sqs: {
       arn: '${cf:product-service-${self:provider.stage}.QueueARN}',
       url: '${cf:product-service-${self:provider.stage}.QueueURL}'
-    }
+    },
+    basicAuthArn: {
+      'Fn::ImportValue': 'BasicAuthArn',
+    },
   },
   useDotenv: true,
   plugins: ['serverless-webpack'],
@@ -58,7 +61,36 @@ const serverlessConfiguration: AWS = {
     ],
     lambdaHashingVersion: '20201221',
   },
-  // import the function via paths
+  resources: {
+    Resources: {
+      GatewayResponseAccessDenied: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
+          },
+          ResponseType: 'ACCESS_DENIED',
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+        },
+      },
+      GatewayResponseUnauthorized: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
+          },
+          ResponseType: 'UNAUTHORIZED',
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+        },
+      },
+    }
+  },
   functions: { importProductsFile, importFileParser }
 };
 

@@ -8,6 +8,13 @@ export default {
                 method: 'get',
                 path: 'import',
                 cors: true,
+                authorizer: {
+                    name: 'tokenAuthorizer',
+                    arn: '${self:custom.basicAuthArn}',
+                    resultTtlInSeconds: 0,
+                    identitySource: 'method.request.header.Authorization',
+                    type: 'TOKEN'
+                },
                 request: {
                     parameters: {
                         querystrings: {
