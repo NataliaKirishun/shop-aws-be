@@ -27,11 +27,87 @@ const serverlessConfiguration: AWS = {
       PG_PORT: '${env:PG_PORT}',
       PG_DATABASE: '${env:PG_DATABASE}',
       PG_USERNAME: '${env:PG_USERNAME}',
-      PG_PASSWORD: '${env:PG_PASSWORD}'
+      PG_PASSWORD: '${env:PG_PASSWORD}',
+      REGION: '${env:REGION}',
+      QUEUE_NAME: '${env:QUEUE_NAME}',
+      TOPIC_NAME: '${env:TOPIC_NAME}',
+      SNS_ARN: {
+        Ref: 'SNSTopic'
+      }
     },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: 'sqs:*',
+        Resource: {
+          'Fn::GetAtt': ['SQSQueue','Arn']
+        }
+      },
+      {
+        Effect: 'Allow',
+        Action: 'sns:*',
+        Resource: {
+          Ref: 'SNSTopic'
+        }
+      }
+    ],
     lambdaHashingVersion: '20201221',
   },
   // import the function via paths
+  resources: {
+    Resources: {
+      SQSQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: '${env:QUEUE_NAME}'
+        }
+      },
+      SNSTopic: {
+        Type: 'AWS::SNS::Topic',
+          Properties: {
+            TopicName: '${env:TOPIC_NAME}'
+          }
+      },
+      SNSSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: '${env:MAIN_EMAIL}',
+          Protocol: 'email',
+          TopicArn: {
+            Ref: 'SNSTopic'
+          }
+        }
+      },
+      AdditionalSNSSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: '${env:ADDITIONAL_EMAIL}',
+          Protocol: 'email',
+          TopicArn: {
+            Ref: 'SNSTopic'
+          },
+          FilterPolicy: {
+            count: [{ numeric: [">=", 10] }]
+          }
+        }
+      }
+    },
+    Outputs: {
+      QueueURL: {
+        Value: {
+          Ref: 'SQSQueue',
+        }
+      },
+      QueueARN: {
+        Value: {
+          'Fn::GetAtt': [
+            'SQSQueue',
+            'Arn'
+          ]
+        }
+      }
+    }
+  },
   functions: {
     getProductList: {
       handler: 'handler.getProductList',
@@ -60,7 +136,6 @@ const serverlessConfiguration: AWS = {
     },
     addProduct: {
       handler: 'handler.addProduct',
-
       events: [
         {
           http: {
@@ -80,6 +155,19 @@ const serverlessConfiguration: AWS = {
         }
       ]
     },
+    catalogBatchProcess: {
+      handler: 'handler.catalogBatchProcess',
+      events: [
+        {
+          sqs: {
+            batchSize: 5,
+            arn: {
+              'Fn::GetAtt': ['SQSQueue', 'Arn']
+            }
+          }
+        }
+      ]
+    }
   },
 };
 
